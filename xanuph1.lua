@@ -223,33 +223,50 @@ task.spawn(function()
 end)
 
 -- ====================================================================
--- REJOIN REPARADO: SEÑAL NATIVA DIRIGIDA AL BOTÓN FÍSICO DE TU DEX EXPLORER
+-- REJOIN FÍSICO BLINDADO V19.45 (VERSIÓN DE PRUEBA AISLADA)
+-- PROPIEDAD DE: xanu_7 (FRENO ESTRICTO POR VISIBILIDAD DE INTERFAZ)
 -- ====================================================================
-task.spawn(function()
-    while true do
-        if _G.activarEscanerRejoin then
-            pcall(function()
-                -- Buscamos el botón verde "Play Again" usando la ruta tridimensional exacta de tu foto de Dex
-                local GameUI = PlayerGui:FindFirstChild("GameUI")
-                local FinalUI = GameUI and GameUI:FindFirstChild("FinalUI")
-                local Content = FinalUI and FinalUI:FindFirstChild("Content")
-                local botonPlayAgainVisual = Content and Content:FindFirstChild("PlayAgain")
-                
-                if botonPlayAgainVisual and botonPlayAgainVisual.Visible then
-                    -- Dispara la señal interna de Roblox simulando la pulsación física perfecta
-                    local connections = botonPlayAgainVisual:GetConnections("MouseButton1Click")
-                    if connections and #connections > 0 then
-                        connections:Fire()
-                    else
-                        firesignal(botonPlayAgainVisual.MouseButton1Click)
-                    end
-                    print("[Rejoin V19.34]: ¡Señal nativa invisible enviada al botón verde Play Again de tu Dex!")
-                    _G.activarEscanerRejoin = false -- Apaga el bucle tras la pulsación correcta
+local VirtualInputManager = game:GetService("VirtualInputManager")
+
+print("[Rejoin V19.45]: Escáner blindado activo. Vigilando fin de partida...")
+local partidaTerminadaReal = false
+
+while not partidaTerminadaReal do
+    pcall(function()
+        local LocalPlayer = game:GetService("Players").LocalPlayer
+        local PlayerGui = LocalPlayer:FindFirstChild("PlayerGui")
+        
+        -- Verificamos de forma estricta que la carpeta visual final de tu Dex esté visible en pantalla
+        local GameUI = PlayerGui:FindFirstChild("GameUI")
+        local FinalUI = GameUI and GameUI:FindFirstChild("FinalUI")
+        
+        if FinalUI and FinalUI.Visible == true then
+            -- Una vez que el cartel azul/rojo nace en tu pantalla, buscamos el botón
+            for _, obj in pairs(FinalUI:GetDescendants()) do
+                if obj.Name == "PlayAgain" and obj:IsA("GuiButton") and obj.AbsoluteSize.X > 0 then
+                    
+                    -- TU COLCHÓN CRÍTICO: 3.5 segundos obligatorios para asegurar tus monedas
+                    print("[Rejoin V19.45]: ¡Cartel detectado! Esperando 3.5 segundos de resguardo...")
+                    task.wait(3.5)
+                    
+                    -- INGENIERÍA DE PÍXELES ULTRA CALIBRADA (ABAJO Y A LA DERECHA)
+                    local posX = obj.AbsolutePosition.X + (obj.AbsoluteSize.X / 2) + 25
+                    local posY = obj.AbsolutePosition.Y + (obj.AbsoluteSize.Y / 2) + 55
+                    
+                    print("[Rejoin Xanu]: Clickeando centro real en: X = " .. posX .. ", Y = " .. posY)
+                    
+                    -- Simula la pulsación física perfecta en el centro del botón verde
+                    VirtualInputManager:SendMouseButtonEvent(posX, posY, 0, true, game, 1) -- Presiona
+                    task.wait(0.05)
+                    VirtualInputManager:SendMouseButtonEvent(posX, posY, 0, false, game, 1) -- Suelta
+                    
+                    print("[Rejoin V19.45]: ¡Pulsación física completada con éxito!")
+                    partidaTerminadaReal = true
+                    break
                 end
-            end)
-            task.wait(1.5) -- Reintentos rítmicos seguros por si hay lag al procesar la pantalla final
-        else
-            task.wait(2.5)
+            end
         end
-    end
-end)
+    end)
+    if partidaTerminadaReal then break end
+    task.wait(1.0) -- Escaneo pasivo cada segundo libre de lag
+end
