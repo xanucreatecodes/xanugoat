@@ -23,7 +23,7 @@ local ALTURA_REAL = -47.456172943115234
 -- CONTROL DE COORDENADAS RECTIFICADAS E INDEXADAS
 local COORD_NINJA = Vector3.new(-28.6, ALTURA_REAL, 13.0) 
 local POS_GRANJAS = {
-    Vector3.new(-54.0, ALTURA_REAL, 28.8), -- Científico 1
+    Vector3.new(-42.2, ALTURA_REAL, 28.5), -- Científico 1
     Vector3.new(-58.0, ALTURA_REAL, 23.8), -- Científico 2
     Vector3.new(-62.64520263671875, ALTURA_REAL, 34.223361968994141), -- Científico 3
     Vector3.new(-60.9, ALTURA_REAL, 42.9)  -- Científico 4
