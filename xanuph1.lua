@@ -146,7 +146,8 @@ task.spawn(function()
     _G.colocarTorreConFondos("Scientist Cameraman", ID_CIENTIFICO, POS_GRANJAS[3], 100)
     
     -- [OLA 3]
-    _G.colocarTorreConFondos("Ninja Cameraman", ID_NINJA, COORD_NINJA, 200)
+     _G.colocarTorreConFondos("Ninja Cameraman", ID_NINJA, COORD_NINJA, 200)
+    task.wait(0.5) -- Colchón anti-lag de red
     _G.colocarTorreConFondos("Scientist Cameraman", ID_CIENTIFICO, POS_GRANJAS[4], 100)
 
     -- [FASE MEJORA NINJA - PRIORIDAD ABSOLUTA EN LA PARTE 1]
@@ -180,8 +181,17 @@ task.spawn(function()
         for i = 1, 4 do
             _G.esperarDinero(costo)
             _G.mejorarTorreInvisibly(_G.TorresColocadas.Granjas[i], lvl + 1)
-            task.wait(0.1)
+            task.wait(0.25) -- Más tiempo para que el servidor procese cada granja
         end
+    end
+
+    -- ASEGURAR EL MÁXIMO NIVEL DEL CUARTO CIENTÍFICO CON REINTENTO
+    _G.esperarDinero(2000)
+    task.wait(0.5) -- Pausa de oro para asegurar que el dinero cargó de verdad
+    if _G.TorresColocadas.Granjas[4] then
+        _G.mejorarTorreInvisibly(_G.TorresColocadas.Granjas[4], 5)
+    end
+    task.wait(0.2)
     end
 
     -- CORRECCIÓN CRÍTICA: Forzamos la espera del dinero y la última mejora del 4to Científico
