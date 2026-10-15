@@ -21,21 +21,21 @@ local WaveSkipEvent = NetworkFolder:WaitForChild("WaveSkip")
 local ALTURA_REAL = -47.456172943115234
 
 -- CONTROL DE COORDENADAS RECTIFICADAS E INDEXADAS
-local COORD_NINJA = Vector3.new(-28.6, ALTURA_REAL, 13.0) 
+local COORD_NINJA = Vector3.new(-25.6, ALTURA_REAL, 13.0) 
 local POS_GRANJAS = {
-    Vector3.new(-42.2, ALTURA_REAL, 28.5), -- Científico 1
-    Vector3.new(-40.0, ALTURA_REAL, 43.5), -- Científico 2
+    Vector3.new(-54.0, ALTURA_REAL, 28.8), -- Científico 1
+    Vector3.new(-58.0, ALTURA_REAL, 23.8), -- Científico 2
     Vector3.new(-62.64520263671875, ALTURA_REAL, 34.223361968994141), -- Científico 3
     Vector3.new(-60.9, ALTURA_REAL, 42.9)  -- Científico 4
 }
 local POS_TITANES = {
-    Vector3.new(-18.5, ALTURA_REAL, 6.2),  -- Titán 1
-    Vector3.new(-24.9, ALTURA_REAL, 4.0), -- Titán 2
-    Vector3.new(-30.9, ALTURA_REAL, 4.0), -- Titán 3
-    Vector3.new(-36.9, ALTURA_REAL, 4.0),  -- Titán 4
-    Vector3.new(-42.9, ALTURA_REAL, 4.0), -- Titán 5
-    Vector3.new(-48.9, ALTURA_REAL, 4.0),-- Titán 6
-    Vector3.new(-54.9, ALTURA_REAL, 4.0)  -- Titán 7
+    Vector3.new(-19.1, ALTURA_REAL, 2.2),  -- Titán 1
+    Vector3.new(-33.9, ALTURA_REAL, -2.3), -- Titán 2
+    Vector3.new(-45.7, ALTURA_REAL, -3.7), -- Titán 3
+    Vector3.new(-17.3, ALTURA_REAL, 9.8),  -- Titán 4
+    Vector3.new(-30.3, ALTURA_REAL, 10.7), -- Titán 5
+    Vector3.new(-31.1, ALTURA_REAL, -14.0),-- Titán 6
+    Vector3.new(-42.2, ALTURA_REAL, 10.1)  -- Titán 7
 }
 
 local ID_CIENTIFICO = "197db902-78aa-48d8-bb47-2fe8a49e8158"
@@ -146,8 +146,7 @@ task.spawn(function()
     _G.colocarTorreConFondos("Scientist Cameraman", ID_CIENTIFICO, POS_GRANJAS[3], 100)
     
     -- [OLA 3]
-     _G.colocarTorreConFondos("Ninja Cameraman", ID_NINJA, COORD_NINJA, 200)
-    task.wait(0.5) -- Colchón anti-lag de red
+    _G.colocarTorreConFondos("Ninja Cameraman", ID_NINJA, COORD_NINJA, 200)
     _G.colocarTorreConFondos("Scientist Cameraman", ID_CIENTIFICO, POS_GRANJAS[4], 100)
 
     -- [FASE MEJORA NINJA - PRIORIDAD ABSOLUTA EN LA PARTE 1]
@@ -181,17 +180,8 @@ task.spawn(function()
         for i = 1, 4 do
             _G.esperarDinero(costo)
             _G.mejorarTorreInvisibly(_G.TorresColocadas.Granjas[i], lvl + 1)
-            task.wait(0.25) -- Más tiempo para que el servidor procese cada granja
+            task.wait(0.1)
         end
-    end
-
-    -- ASEGURAR EL MÁXIMO NIVEL DEL CUARTO CIENTÍFICO CON REINTENTO
-    _G.esperarDinero(2000)
-    task.wait(0.5) -- Pausa de oro para asegurar que el dinero cargó de verdad
-    if _G.TorresColocadas.Granjas[4] then
-        _G.mejorarTorreInvisibly(_G.TorresColocadas.Granjas[4], 5)
-    end
-    task.wait(0.2)
     end
 
     -- CORRECCIÓN CRÍTICA: Forzamos la espera del dinero y la última mejora del 4to Científico
@@ -229,6 +219,7 @@ task.spawn(function()
     task.wait(2)
     _G.activarEscanerRejoin = true 
 end)
+
 -- ====================================================================
 -- REJOIN FÍSICO BLINDADO V19.45 (UNIFICADO AL FINAL ABSOLUTO)
 -- PROPIEDAD DE: xanu_7 (FRENO ESTRICTO POR VISIBILIDAD DE INTERFAZ)
