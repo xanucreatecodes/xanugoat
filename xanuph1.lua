@@ -15,7 +15,7 @@ local WaveSkipEvent = NetworkFolder:WaitForChild("WaveSkip")
 local ALTURA_REAL = -47.456172943115234
 
 local POS_TV_WOMAN = {
-    Vector3.new(-44.3, ALTURA_REAL, 12.8),
+    Vector3.new(-44.3, ALTURA_REAL, 13.8),
     Vector3.new(-47.9, ALTURA_REAL, -1.6)
 }
 local POS_GRANJAS = {
@@ -69,12 +69,6 @@ _G.esperarDinero = function(cantidad)
     while miDinero() < cantidad do task.wait(0.05) end
 end
 
-_G.esperarTorreRegistrada = function(tabla, indice)
-    while not tabla[indice] or not tabla[indice].Id or not tabla[indice].Index do
-        task.wait(0.05)
-    end
-end
-
 _G.colocarTorreDirecto = function(nombreInterno, unitId, posicion)
     local struct = {
         UnitId = unitId,
@@ -83,7 +77,7 @@ _G.colocarTorreDirecto = function(nombreInterno, unitId, posicion)
         Pos = posicion
     }
     TowerAddEvent:FireServer(struct)
-    task.wait(0.3)
+    task.wait(1.5) -- TIEMPO AUMENTADO: Colchón de resguardo para la red en colocación
 end
 
 _G.colocarTorreConFondos = function(nombreInterno, unitId, posicion, costoUnidad)
@@ -94,7 +88,7 @@ end
 _G.mejorarTorreInvisibly = function(datosTorre, nivelDestino)
     if not datosTorre or not datosTorre.Id or not datosTorre.Index then return end
     TowerUpgradeEvent:FireServer({ Id = datosTorre.Id, Index = datosTorre.Index, Level = nivelDestino })
-    task.wait(0.1)
+    task.wait(1.0) -- TIEMPO AUMENTADO: Espera de 1 segundo entre mejoras para limpiar el lag
 end
 
 task.spawn(function()
@@ -137,10 +131,10 @@ task.spawn(function()
     _G.colocarTorreConFondos("Scientist Cameraman", ID_CIENTIFICO, POS_GRANJAS[4], 100)
 
     _G.colocarTorreConFondos("Tv Woman", ID_TV_WOMAN, POS_TV_WOMAN[1], 650)
-    _G.esperarTorreRegistrada(_G.TorresColocadas.TvWoman, 1)
+    task.wait(2.0) -- ESPERA DISFRUTABLE: Tiempo de resguardo tras la TV Woman
     
+    -- Mejoras Nivel 2
     for i = 1, 4 do
-        _G.esperarTorreRegistrada(_G.TorresColocadas.Granjas, i)
         _G.esperarDinero(300)
         _G.mejorarTorreInvisibly(_G.TorresColocadas.Granjas[i], 2)
     end
@@ -148,6 +142,7 @@ task.spawn(function()
     _G.esperarDinero(850)
     _G.mejorarTorreInvisibly(_G.TorresColocadas.TvWoman[1], 2)
 
+    -- Mejoras Nivel 3
     for i = 1, 4 do
         _G.esperarDinero(600)
         _G.mejorarTorreInvisibly(_G.TorresColocadas.Granjas[i], 3)
@@ -156,11 +151,13 @@ task.spawn(function()
     _G.esperarDinero(2500)
     _G.mejorarTorreInvisibly(_G.TorresColocadas.TvWoman[1], 3)
 
+    -- Mejoras Nivel 4 (Aquí fallaba el de 900)
     for i = 1, 4 do
         _G.esperarDinero(900)
         _G.mejorarTorreInvisibly(_G.TorresColocadas.Granjas[i], 4)
     end
 
+    -- Mejoras Nivel 5 (Aquí fallaba el de 2000)
     for i = 1, 4 do
         _G.esperarDinero(2000)
         _G.mejorarTorreInvisibly(_G.TorresColocadas.Granjas[i], 5)
@@ -172,7 +169,7 @@ task.spawn(function()
     _G.mejorarTorreInvisibly(_G.TorresColocadas.TvWoman[1], 5)
 
     _G.colocarTorreConFondos("Tv Woman", ID_TV_WOMAN, POS_TV_WOMAN[2], 650)
-    _G.esperarTorreRegistrada(_G.TorresColocadas.TvWoman, 2)
+    task.wait(2.0)
     
     local costosTvWoman = {850, 2500, 4000, 9000}
     for lvl, costo in ipairs(costosTvWoman) do
@@ -180,10 +177,11 @@ task.spawn(function()
         _G.mejorarTorreInvisibly(_G.TorresColocadas.TvWoman[2], lvl + 1)
     end
 
+    -- Fase Ofensiva: 6 Titanes sin apuros de red
     local costosTitan = {1500, 2500, 5500, 9500}
     for t = 1, 6 do
         _G.colocarTorreConFondos("Upgraded Titan Speakerman", ID_TITAN, POS_TITANES[t], 1000)
-        _G.esperarTorreRegistrada(_G.TorresColocadas.Titanes, t)
+        task.wait(1.5) -- TIEMPO EXTRA: Para que el servidor registre físicamente el Titán antes de mejorarlo
         for lvl, costo in ipairs(costosTitan) do
             _G.esperarDinero(costo)
             _G.mejorarTorreInvisibly(_G.TorresColocadas.Titanes[t], lvl + 1)
