@@ -6,6 +6,7 @@ local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 local NetworkFolder = ReplicatedStorage:WaitForChild("ModuleLoader"):WaitForChild("Shared"):WaitForChild("Network"):WaitForChild("RemoteEvent")
+local RemoteFunctionFolder = ReplicatedStorage:WaitForChild("ModuleLoader"):WaitForChild("Shared"):WaitForChild("Network"):WaitForChild("RemoteFunction")
 local TowerAddEvent = NetworkFolder:WaitForChild("TowerAdd")
 local TowerUpgradeEvent = NetworkFolder:WaitForChild("TowerUpgrade")
 local TowerSellEvent = NetworkFolder:FindFirstChild("TowerSell") or NetworkFolder:WaitForChild("TowerSell", 2)
@@ -64,8 +65,14 @@ local function miDinero()
 end
 
 _G.esperarDinero = function(cantidad)
-    if miDinero() == 99999 then task.wait(2) return end
-    while miDinero() < cantidad do task.wait(0.1) end
+    if miDinero() == 99999 then task.wait(0.5) return end
+    while miDinero() < cantidad do task.wait(0.05) end
+end
+
+_G.esperarTorreRegistrada = function(tabla, indice)
+    while not tabla[indice] or not tabla[indice].Id or not tabla[indice].Index do
+        task.wait(0.05)
+    end
 end
 
 _G.colocarTorreDirecto = function(nombreInterno, unitId, posicion)
@@ -76,7 +83,7 @@ _G.colocarTorreDirecto = function(nombreInterno, unitId, posicion)
         Pos = posicion
     }
     TowerAddEvent:FireServer(struct)
-    task.wait(0.5)
+    task.wait(0.3)
 end
 
 _G.colocarTorreConFondos = function(nombreInterno, unitId, posicion, costoUnidad)
@@ -87,12 +94,7 @@ end
 _G.mejorarTorreInvisibly = function(datosTorre, nivelDestino)
     if not datosTorre or not datosTorre.Id or not datosTorre.Index then return end
     TowerUpgradeEvent:FireServer({ Id = datosTorre.Id, Index = datosTorre.Index, Level = nivelDestino })
-    task.wait(0.15)
-end
-
-_G.venderTorreInvisibly = function(datosTorre)
-    if datosTorre and datosTorre.Id and TowerSellEvent then TowerSellEvent:FireServer({ Id = datosTorre.Id }) end
-    task.wait(0.2)
+    task.wait(0.1)
 end
 
 task.spawn(function()
@@ -103,8 +105,9 @@ task.spawn(function()
 end)
 
 task.spawn(function()
+    task.wait(1.5)
     pcall(function()
-        local CS = ReplicatedStorage:WaitForChild("ModuleLoader"):WaitForChild("Shared"):WaitForChild("Network"):WaitForFunction():FindFirstChild("ChangeSpeed")
+        local CS = RemoteFunctionFolder:WaitForChild("ChangeSpeed", 5) or RemoteFunctionFolder:FindFirstChild("ChangeSpeed")
         if CS then CS:InvokeServer(2) end
     end)
     task.wait(0.2)
@@ -124,7 +127,7 @@ task.spawn(function()
 end)
 
 task.spawn(function()
-    task.wait(5.5)
+    task.wait(5.0)
 
     _G.colocarTorreDirecto("Scientist Cameraman", ID_CIENTIFICO, POS_GRANJAS[1])
     _G.colocarTorreDirecto("Scientist Cameraman", ID_CIENTIFICO, POS_GRANJAS[2])
@@ -133,12 +136,11 @@ task.spawn(function()
     
     _G.colocarTorreConFondos("Scientist Cameraman", ID_CIENTIFICO, POS_GRANJAS[4], 100)
 
-    _G.colocarTorreConFondos("TV Woman", ID_TV_WOMAN, POS_TV_WOMAN[1], 650)
+    _G.colocarTorreConFondos("Tv Woman", ID_TV_WOMAN, POS_TV_WOMAN[1], 650)
+    _G.esperarTorreRegistrada(_G.TorresColocadas.TvWoman, 1)
     
-    _G.esperarDinero(300)
-    _G.mejorarTorreInvisibly(_G.TorresColocadas.Granjas[1], 2)
-    
-    for i = 2, 4 do
+    for i = 1, 4 do
+        _G.esperarTorreRegistrada(_G.TorresColocadas.Granjas, i)
         _G.esperarDinero(300)
         _G.mejorarTorreInvisibly(_G.TorresColocadas.Granjas[i], 2)
     end
@@ -159,12 +161,19 @@ task.spawn(function()
         _G.mejorarTorreInvisibly(_G.TorresColocadas.Granjas[i], 4)
     end
 
+    for i = 1, 4 do
+        _G.esperarDinero(2000)
+        _G.mejorarTorreInvisibly(_G.TorresColocadas.Granjas[i], 5)
+    end
+
     _G.esperarDinero(4000)
     _G.mejorarTorreInvisibly(_G.TorresColocadas.TvWoman[1], 4)
     _G.esperarDinero(9000)
     _G.mejorarTorreInvisibly(_G.TorresColocadas.TvWoman[1], 5)
 
-    _G.colocarTorreConFondos("TV Woman", ID_TV_WOMAN, POS_TV_WOMAN[2], 650)
+    _G.colocarTorreConFondos("Tv Woman", ID_TV_WOMAN, POS_TV_WOMAN[2], 650)
+    _G.esperarTorreRegistrada(_G.TorresColocadas.TvWoman, 2)
+    
     local costosTvWoman = {850, 2500, 4000, 9000}
     for lvl, costo in ipairs(costosTvWoman) do
         _G.esperarDinero(costo)
@@ -174,6 +183,7 @@ task.spawn(function()
     local costosTitan = {1500, 2500, 5500, 9500}
     for t = 1, 6 do
         _G.colocarTorreConFondos("Upgraded Titan Speakerman", ID_TITAN, POS_TITANES[t], 1000)
+        _G.esperarTorreRegistrada(_G.TorresColocadas.Titanes, t)
         for lvl, costo in ipairs(costosTitan) do
             _G.esperarDinero(costo)
             _G.mejorarTorreInvisibly(_G.TorresColocadas.Titanes[t], lvl + 1)
